@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<title>Distributors map</title>
+<meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+<script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.js'></script>
+<link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.53.1/mapbox-gl.css' rel='stylesheet' />
+<style>
+body { margin:0; padding:0; }
+#map { 
+    position:absolute; 
+    height: 100%;
+    width:100%; 
+}
+
+.marker {
+    width: 30px;
+    cursor: pointer;
+}
+
+.mapboxgl-popup {
+    max-width: 300px;
+}
+
+.mapboxgl-popup td {
+    padding-left: 1em;
+}
+
+.d-details {
+    font-style:italic;
+    color: #555;
+}
+
+/* You won't need this element. Just used here in this display page. */
+#container {
+    position: relative;
+    margin: auto;
+    width: 500px;
+    height: 500px;
+}
+
+</style>
+</head>
+<body>
+    <div id="container">
+        <div id='map'></div>
+    </div>
+    <select id='countries'>
+        <option>Select your country</option>
+    </select>
+<script>
+
+mapboxgl.accessToken = 'pk.eyJ1IjoibWlsa2FibGUiLCJhIjoiY2p0emNyb3U1MWQwNDQ0cGZrbHd4YnNqeiJ9.KCJcbWvoBToA_xp1nzcqqw';
+
+let map;
+
+const distributors = [
+    {
+        location: [145.133656, -37.900004],
+        name: 'PPM Australia',
+        address: '307 Ferntree Gully Road, Mount Waverley VIC, Australia' + 
+                '<br>PPM Head Office and Australian Paper Exports',
+        details: 'Servicing Africa, Middle East and Sub-Continent regions',
+        phone: '+61 3 8540 2211',
+        email: 'sales@ppm.com',
+        layer: 'AUSTRALIA'
+    },
+    {
+        location: [103.81384, 1.290895],
+        name: 'Singapore',
+        address: '237 Alexandra Road, #04-05, The Alexcier, Singapore, 159929',
+        details: 'Servicing Singapore and surrounding markets',
+        phone: '+65 6220 2488',
+        email: 'raymond.gnin@ppmsingapore.com.sg',
+        layer: 'ASIA',
+        country: 'Singapore'
+    },
+    {
+
+        location: [101.46934, 3.055172],
+        name: 'Malaysia',
+        address: 'Suite 25-03, Level 25, Centro Office Tower, No.8, Jalan Batu Tiga Lama, 41300 Klang, Selangor, Malaysia',
+        details: 'Servicing Malaysia',
+        phone: '+603 33445805',
+        email: 'cmlee@ppmmal.com.my',
+        layer: 'ASIA',
+        country: 'Malaysia'
+    },
+    {
+
+        location: [ 114.17210699999998, 22.2777396],
+        name: 'PPM Hong Kong',
+        address: '15/F, Yue Hing Building 103, Hennessy Road, Wanchai, Hong Kong',
+        details: 'Servicing China and surround markets',
+        phone: '+852 2528 6113',
+        email: 'enquiry@ppmhk.com.hk',
+        layer: 'ASIA',
+        country: ['Hong Kong', 'China']
+    },
+    {
+        location: [121.5505594, 25.0223264],
+        name: 'PPM Taiwan',
+        address: '8F-5-2, 51, Section 2, Keelung Road, Tapei, Taiwan',
+        details: 'Servicing Taiwan and surrounding markets',
+        phone: '+61 3854 02211',
+        email: 'ss.ppmt@msa.hinet.net',
+        layer: 'ASIA',
+        country: 'Taiwan'
+    },
+    {
+        location: [-122.6712837, 45.491027],
+        name: 'PPM USA',
+        address: 'Suite 370, 4380 S.W. Macadam Avenue, Portland, Oregon',
+        details: 'Servicing Canada and all parts of North, Central and Latin American markets',
+        phone: '+1 5032276615',
+        email: 'info@ppmpdx.com<br>info-espanol@ppmpdx.com',
+        layer: 'AMERICAS',
+    },
+    {
+        location: [6.708951899999988, 51.196337],
+        name: 'PPM Europe',
+        address: 'Hellersbergstraße 2A, 41460 Neuss, Germany',
+        // details: '
+        phone: '+49 213116980',
+        email: 'info@ppm-europe.de',
+        layer: 'EUROPE AND AFRICA',
+    },
+];
+
+const regions = ['ASIA', 'AUSTRALIA', 'AMERICAS', 'EUROPE AND AFRICA'];
+
+const countries = [{"country":"Afghanistan","continent":"AS"},{"country":"Albania","continent":"EU"},{"country":"Algeria","continent":"AF"},{"country":"American Samoa","continent":"OC"},{"country":"Andorra","continent":"EU"},{"country":"Angola","continent":"AF"},{"country":"Anguilla","continent":"NA"},{"country":"Antarctica","continent":"AN"},{"country":"Antigua and Barbuda","continent":"NA"},{"country":"Argentina","continent":"SA"},{"country":"Armenia","continent":"AS"},{"country":"Aruba","continent":"NA"},{"country":"Australia","continent":"OC"},{"country":"Austria","continent":"EU"},{"country":"Azerbaijan","continent":"AS"},{"country":"Bahamas","continent":"NA"},{"country":"Bahrain","continent":"AS"},{"country":"Bangladesh","continent":"AS"},{"country":"Barbados","continent":"NA"},{"country":"Belarus","continent":"EU"},{"country":"Belgium","continent":"EU"},{"country":"Belize","continent":"NA"},{"country":"Benin","continent":"AF"},{"country":"Bermuda","continent":"NA"},{"country":"Bhutan","continent":"AS"},{"country":"Bolivia","continent":"SA"},{"country":"Bonaire","continent":"NA"},{"country":"Bosnia and Herzegovina","continent":"EU"},{"country":"Botswana","continent":"AF"},{"country":"Bouvet Island","continent":"AN"},{"country":"Brazil","continent":"SA"},{"country":"British Indian Ocean Territory","continent":"AS"},{"country":"British Virgin Islands","continent":"NA"},{"country":"Brunei","continent":"AS"},{"country":"Bulgaria","continent":"EU"},{"country":"Burkina Faso","continent":"AF"},{"country":"Burundi","continent":"AF"},{"country":"Cambodia","continent":"AS"},{"country":"Cameroon","continent":"AF"},{"country":"Canada","continent":"NA"},{"country":"Cape Verde","continent":"AF"},{"country":"Cayman Islands","continent":"NA"},{"country":"Central African Republic","continent":"AF"},{"country":"Chad","continent":"AF"},{"country":"Chile","continent":"SA"},{"country":"China","continent":"AS"},{"country":"Christmas Island","continent":"AS"},{"country":"Cocos [Keeling] Islands","continent":"AS"},{"country":"Colombia","continent":"SA"},{"country":"Comoros","continent":"AF"},{"country":"Cook Islands","continent":"OC"},{"country":"Costa Rica","continent":"NA"},{"country":"Croatia","continent":"EU"},{"country":"Cuba","continent":"NA"},{"country":"Curacao","continent":"NA"},{"country":"Cyprus","continent":"EU"},{"country":"Czech Republic","continent":"EU"},{"country":"Democratic Republic of the Congo","continent":"AF"},{"country":"Denmark","continent":"EU"},{"country":"Djibouti","continent":"AF"},{"country":"Dominica","continent":"NA"},{"country":"Dominican Republic","continent":"NA"},{"country":"East Timor","continent":"OC"},{"country":"Ecuador","continent":"SA"},{"country":"Egypt","continent":"AF"},{"country":"El Salvador","continent":"NA"},{"country":"Equatorial Guinea","continent":"AF"},{"country":"Eritrea","continent":"AF"},{"country":"Estonia","continent":"EU"},{"country":"Ethiopia","continent":"AF"},{"country":"Falkland Islands","continent":"SA"},{"country":"Faroe Islands","continent":"EU"},{"country":"Fiji","continent":"OC"},{"country":"Finland","continent":"EU"},{"country":"France","continent":"EU"},{"country":"French Guiana","continent":"SA"},{"country":"French Polynesia","continent":"OC"},{"country":"French Southern Territories","continent":"AN"},{"country":"Gabon","continent":"AF"},{"country":"Gambia","continent":"AF"},{"country":"Georgia","continent":"AS"},{"country":"Germany","continent":"EU"},{"country":"Ghana","continent":"AF"},{"country":"Gibraltar","continent":"EU"},{"country":"Greece","continent":"EU"},{"country":"Greenland","continent":"NA"},{"country":"Grenada","continent":"NA"},{"country":"Guadeloupe","continent":"NA"},{"country":"Guam","continent":"OC"},{"country":"Guatemala","continent":"NA"},{"country":"Guernsey","continent":"EU"},{"country":"Guinea","continent":"AF"},{"country":"Guinea-Bissau","continent":"AF"},{"country":"Guyana","continent":"SA"},{"country":"Haiti","continent":"NA"},{"country":"Heard Island and McDonald Islands","continent":"AN"},{"country":"Honduras","continent":"NA"},{"country":"Hong Kong","continent":"AS"},{"country":"Hungary","continent":"EU"},{"country":"Iceland","continent":"EU"},{"country":"India","continent":"AS"},{"country":"Indonesia","continent":"AS"},{"country":"Iran","continent":"AS"},{"country":"Iraq","continent":"AS"},{"country":"Ireland","continent":"EU"},{"country":"Isle of Man","continent":"EU"},{"country":"Israel","continent":"AS"},{"country":"Italy","continent":"EU"},{"country":"Ivory Coast","continent":"AF"},{"country":"Jamaica","continent":"NA"},{"country":"Japan","continent":"AS"},{"country":"Jersey","continent":"EU"},{"country":"Jordan","continent":"AS"},{"country":"Kazakhstan","continent":"AS"},{"country":"Kenya","continent":"AF"},{"country":"Kiribati","continent":"OC"},{"country":"Kosovo","continent":"EU"},{"country":"Kuwait","continent":"AS"},{"country":"Kyrgyzstan","continent":"AS"},{"country":"Laos","continent":"AS"},{"country":"Latvia","continent":"EU"},{"country":"Lebanon","continent":"AS"},{"country":"Lesotho","continent":"AF"},{"country":"Liberia","continent":"AF"},{"country":"Libya","continent":"AF"},{"country":"Liechtenstein","continent":"EU"},{"country":"Lithuania","continent":"EU"},{"country":"Luxembourg","continent":"EU"},{"country":"Macao","continent":"AS"},{"country":"Macedonia","continent":"EU"},{"country":"Madagascar","continent":"AF"},{"country":"Malawi","continent":"AF"},{"country":"Malaysia","continent":"AS"},{"country":"Maldives","continent":"AS"},{"country":"Mali","continent":"AF"},{"country":"Malta","continent":"EU"},{"country":"Marshall Islands","continent":"OC"},{"country":"Martinique","continent":"NA"},{"country":"Mauritania","continent":"AF"},{"country":"Mauritius","continent":"AF"},{"country":"Mayotte","continent":"AF"},{"country":"Mexico","continent":"NA"},{"country":"Micronesia","continent":"OC"},{"country":"Moldova","continent":"EU"},{"country":"Monaco","continent":"EU"},{"country":"Mongolia","continent":"AS"},{"country":"Montenegro","continent":"EU"},{"country":"Montserrat","continent":"NA"},{"country":"Morocco","continent":"AF"},{"country":"Mozambique","continent":"AF"},{"country":"Myanmar [Burma]","continent":"AS"},{"country":"Namibia","continent":"AF"},{"country":"Nauru","continent":"OC"},{"country":"Nepal","continent":"AS"},{"country":"Netherlands","continent":"EU"},{"country":"New Caledonia","continent":"OC"},{"country":"New Zealand","continent":"OC"},{"country":"Nicaragua","continent":"NA"},{"country":"Niger","continent":"AF"},{"country":"Nigeria","continent":"AF"},{"country":"Niue","continent":"OC"},{"country":"Norfolk Island","continent":"OC"},{"country":"North Korea","continent":"AS"},{"country":"Northern Mariana Islands","continent":"OC"},{"country":"Norway","continent":"EU"},{"country":"Oman","continent":"AS"},{"country":"Pakistan","continent":"AS"},{"country":"Palau","continent":"OC"},{"country":"Palestine","continent":"AS"},{"country":"Panama","continent":"NA"},{"country":"Papua New Guinea","continent":"OC"},{"country":"Paraguay","continent":"SA"},{"country":"Peru","continent":"SA"},{"country":"Philippines","continent":"AS"},{"country":"Pitcairn Islands","continent":"OC"},{"country":"Poland","continent":"EU"},{"country":"Portugal","continent":"EU"},{"country":"Puerto Rico","continent":"NA"},{"country":"Qatar","continent":"AS"},{"country":"Republic of the Congo","continent":"AF"},{"country":"Romania","continent":"EU"},{"country":"Russia","continent":"EU"},{"country":"Rwanda","continent":"AF"},{"country":"Réunion","continent":"AF"},{"country":"Saint Barthélemy","continent":"NA"},{"country":"Saint Helena","continent":"AF"},{"country":"Saint Kitts and Nevis","continent":"NA"},{"country":"Saint Lucia","continent":"NA"},{"country":"Saint Martin","continent":"NA"},{"country":"Saint Pierre and Miquelon","continent":"NA"},{"country":"Saint Vincent and the Grenadines","continent":"NA"},{"country":"Samoa","continent":"OC"},{"country":"San Marino","continent":"EU"},{"country":"Saudi Arabia","continent":"AS"},{"country":"Senegal","continent":"AF"},{"country":"Serbia","continent":"EU"},{"country":"Seychelles","continent":"AF"},{"country":"Sierra Leone","continent":"AF"},{"country":"Singapore","continent":"AS"},{"country":"Sint Maarten","continent":"NA"},{"country":"Slovakia","continent":"EU"},{"country":"Slovenia","continent":"EU"},{"country":"Solomon Islands","continent":"OC"},{"country":"Somalia","continent":"AF"},{"country":"South Africa","continent":"AF"},{"country":"South Georgia and the South Sandwich Islands","continent":"AN"},{"country":"South Korea","continent":"AS"},{"country":"South Sudan","continent":"AF"},{"country":"Spain","continent":"EU"},{"country":"Sri Lanka","continent":"AS"},{"country":"Sudan","continent":"AF"},{"country":"Suriname","continent":"SA"},{"country":"Svalbard and Jan Mayen","continent":"EU"},{"country":"Swaziland","continent":"AF"},{"country":"Sweden","continent":"EU"},{"country":"Switzerland","continent":"EU"},{"country":"Syria","continent":"AS"},{"country":"São Tomé and Príncipe","continent":"AF"},{"country":"Taiwan","continent":"AS"},{"country":"Tajikistan","continent":"AS"},{"country":"Tanzania","continent":"AF"},{"country":"Thailand","continent":"AS"},{"country":"Togo","continent":"AF"},{"country":"Tokelau","continent":"OC"},{"country":"Tonga","continent":"OC"},{"country":"Trinidad and Tobago","continent":"NA"},{"country":"Tunisia","continent":"AF"},{"country":"Turkey","continent":"AS"},{"country":"Turkmenistan","continent":"AS"},{"country":"Turks and Caicos Islands","continent":"NA"},{"country":"Tuvalu","continent":"OC"},{"country":"U.S. Minor Outlying Islands","continent":"OC"},{"country":"U.S. Virgin Islands","continent":"NA"},{"country":"Uganda","continent":"AF"},{"country":"Ukraine","continent":"EU"},{"country":"United Arab Emirates","continent":"AS"},{"country":"United Kingdom","continent":"EU"},{"country":"United States","continent":"NA"},{"country":"Uruguay","continent":"SA"},{"country":"Uzbekistan","continent":"AS"},{"country":"Vanuatu","continent":"OC"},{"country":"Vatican City","continent":"EU"},{"country":"Venezuela","continent":"SA"},{"country":"Vietnam","continent":"AS"},{"country":"Wallis and Futuna","continent":"OC"},{"country":"Western Sahara","continent":"AF"},{"country":"Yemen","continent":"AS"},{"country":"Zambia","continent":"AF"},{"country":"Zimbabwe","continent":"AF"},{"country":"Åland","continent":"EU"}];
+let popup;
+
+function populateCountrySelect() {
+    const frag = document.createDocumentFragment();
+    countries.forEach(country => {
+        const option = document.createElement('option');
+        option.text = country.country;
+        frag.appendChild(option);
+    });
+    const select = document.getElementById('countries')
+    select.appendChild(frag);
+    select.addEventListener('change', e => {
+        const country = countries.find(c => c.country === select.value);
+        if (!country) {
+            return;
+        }
+        let region;
+        const ausCountries = ["Japan", "Bangladesh", "Bhutan", "India", "Maldives", "Nepal", "Pakistan", "Sri Lanka", "Bahrain", "Cyprus", "Iran", "Iraq", "Israel", "Jordan", "Kuwait", "Lebanon", "Northern Cyprus", "Oman", "Palestine", "Qatar", "Saudi Arabia", "Syria", "Turkey", "United Arab Emirates", "Yemen"];
+
+        if (country.continent.match(/EU/)) {
+            region = 'EUROPE AND AFRICA';
+        } else if (country.continent.match(/SA|NA/)) {
+            region = 'AMERICAS';
+        } else if (country.continent.match(/OC|AF/) || ausCountries.indexOf(country.country) >= 0) {
+            region = 'AUSTRALIA';
+        } else if (country.continent === 'AS') {
+            region = 'ASIA';
+        } else {
+            console.log('Unexpected continent ', country.continent);
+        }
+        showDistributorForRegion(region, country.country, [86.2, 37.5]);
+    });
+
+}
+
+function showDistributorForRegion(region, country, lngLat) {
+    let distributor;
+    if (region === 'ASIA') {
+        distributor = distributors.find(d => 
+        d.layer === region && (d.country === country || d.country.indexOf(country) >= 0));
+        if (!distributor) {
+            distributor = {
+                name: 'PPM Asia',
+                location: lngLat,
+                email: 'asia@ppm.com'
+            }
+        }
+    } else {
+        distributor = distributors.find(d => d.layer === region);
+    }
+    if (distributor) {
+        showDistributor(distributor);
+    }
+}
+
+function showDistributor(d) {
+    const row = (label, prop) => {
+        let text = prop === 'email' ? `<a href="mailto:${d[prop]}">${d[prop]}</a>` : d[prop];
+
+        if (d[prop]) {
+            return `<tr class="d-${prop}"><th>${label}</th><td>${text}</td></tr>`;
+        } else {
+            return ''
+        }
+    };
+    const html = 
+        `<h2 class="d-name">${d.name}</h2>` +
+        `<table>` +
+        row('Address', 'address') +
+        row('Phone', 'phone') + 
+        row('E-mail', 'email') + 
+        `</table>` + 
+        `<div class="d-details">${d.details||''}</div>`;
+
+    popup
+        .setLngLat(d.location)
+        .setHTML(html)
+        .addTo(map);
+}
+
+function displayDistributors() {
+    distributors.forEach(d => {
+        const el = document.createElement('img');
+        el.className = 'marker';
+        el.src = './marker.png';
+        el.addEventListener('click', e => {
+            showDistributor(d);
+            e.stopPropagation();
+        });
+        const marker = new mapboxgl.Marker({
+            element: el,
+        });
+        marker.setLngLat(d.location);
+        marker.addTo(map);
+    });
+}
+function initMap() {
+    map = new mapboxgl.Map({
+        container: 'map', 
+        style: 'mapbox://styles/milkable/cjuaoeki35naw1fqmwht97dk4?update=1',
+        bounds: [[-155, -40], [178, 72]],
+        maxZoom: 8
+    });
+    map.doubleClickZoom.disable();
+    popup = new mapboxgl.Popup();
+    displayDistributors();
+    regions.forEach(region => {
+        map.on('click', region, e => {
+            showDistributorForRegion(region, e.features[0].properties.BRK_NAME, e.lngLat);
+            console.log(e);
+            console.log(e.features[0].properties);
+        });
+    });
+}
+
+initMap();
+populateCountrySelect();
+</script>
+ 
+</body>
+</html>
